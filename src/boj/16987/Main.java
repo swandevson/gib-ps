@@ -9,7 +9,7 @@ public class Main {
 	static int ans = 0;
 
 	public static void main(String args[]) throws IOException {
-		n = Integer.valueOf(br.readLine());
+		n = Integer.parseInt(br.readLine());
 
 		eggs = new int[n][2];
 		for (int i = 0; i < n; i++) {
@@ -25,11 +25,15 @@ public class Main {
 		System.out.println(ans);
 	}
 
-	// 0 = durability, 1 = weight
+	// 0 = durability, 1 = weight
 	static void solve(int attack, int cnt) {
-		// System.out.println(attack);
-		if (attack == n || cnt == n - 1) {
+		if (attack == n) {
 			ans = Math.max(ans, cnt);
+			return;
+		}
+
+		if (eggs[attack][0] <= 0 || cnt == n-1) {   // broken egg on hand OR no eggs to break
+			solve(attack + 1, cnt);
 			return;
 		}
 
@@ -38,23 +42,24 @@ public class Main {
 				continue;   // can't attack itself
 			}
 
-			if (eggs[attack][0] <= 0) {
-				solve(attack + 1, cnt);
-			} else if (eggs[attack][0] > 0 && eggs[i][0] > 0) {
-				eggs[attack][0] -= eggs[i][1];
-				eggs[i][0] -= eggs[attack][1];
-				if (eggs[i][0] <= 0 && eggs[attack][0] <= 0) {
-					solve(attack + 1, cnt + 2);
-				} else if (eggs[i][0] <= 0) {
-					solve(attack + 1, cnt + 1);
-				} else if (eggs[attack][0] <= 0) {
-					solve(attack + 1, cnt + 1);
-				} else {
-					solve(attack + 1, cnt);
-				}
-				eggs[attack][0] += eggs[i][1];
-				eggs[i][0] += eggs[attack][1];
+			if (eggs[i][0] <= 0) {  // can't break cuz already is broken
+				continue;
 			}
+
+			eggs[i][0] -= eggs[attack][1];
+			eggs[attack][0] -= eggs[i][1];
+
+			if (eggs[i][0] <= 0 && eggs[attack][0] <= 0) {  // both are broken
+				solve(attack + 1, cnt + 2);
+			} else if (eggs[i][0] <= 0 || eggs[attack][0] <= 0) {   // one or the other is broken
+				solve(attack + 1, cnt + 1);
+			} else {    // nothing is broken
+				solve(attack + 1, cnt);
+			}
+
+			eggs[i][0] += eggs[attack][1];
+			eggs[attack][0] += eggs[i][1];
+
 		}
 
 	}
